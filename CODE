@@ -1,0 +1,114 @@
+from datetime import datetime
+
+transactions = []
+
+def check_fraud(amount, location, attempts, new_device):
+    reasons = []
+
+    if amount >= 50000:
+        reasons.append("High transaction amount")
+
+    if attempts >= 3:
+        reasons.append("Multiple failed attempts")
+
+    if new_device == "yes":
+        reasons.append("New device detected")
+
+    if location.lower() == "unknown":
+        reasons.append("Unknown location")
+
+    if len(reasons) >= 2:
+        return "FRAUD - SUSPICIOUS", reasons
+
+    return "NORMAL", reasons
+
+
+def add_transaction():
+    print("\nEnter Transaction Details")
+
+    try:
+        name = input("Account holder name: ")
+        amount = float(input("Transaction amount: "))
+        location = input("Location: ")
+        attempts = int(input("Failed attempts: "))
+        new_device = input("New device? (yes/no): ").lower()
+
+        if amount <= 0 or attempts < 0:
+            print("Invalid transaction details")
+            return
+
+        if new_device not in ["yes", "no"]:
+            print("Enter yes or no")
+            return
+
+        status, reasons = check_fraud(
+            amount, location, attempts, new_device
+        )
+
+        transaction = {
+            "name": name,
+            "amount": amount,
+            "location": location,
+            "status": status,
+            "time": datetime.now()
+        }
+
+        transactions.append(transaction)
+
+        print("\nTransaction Result:", status)
+
+        for reason in reasons:
+            print("-", reason)
+
+    except ValueError:
+        print("Please enter valid numbers")
+
+
+def history():
+    print("\nTransaction History")
+
+    if not transactions:
+        print("No transactions found")
+        return
+
+    for t in transactions:
+        print(t)
+
+
+def summary():
+    total = len(transactions)
+    fraud = sum(
+        1 for t in transactions
+        if t["status"] != "NORMAL"
+    )
+
+    print("\nTotal Transactions:", total)
+    print("Normal Transactions:", total - fraud)
+    print("Suspicious Transactions:", fraud)
+
+
+while True:
+
+    print("\n===== BANK FRAUD DETECTION =====")
+    print("1. Add Transaction")
+    print("2. View History")
+    print("3. View Summary")
+    print("4. Exit")
+
+    choice = input("Enter choice: ")
+
+    if choice == "1":
+        add_transaction()
+
+    elif choice == "2":
+        history()
+
+    elif choice == "3":
+        summary()
+
+    elif choice == "4":
+        print("Thank you!")
+        break
+
+    else:
+        print("Invalid choice")
